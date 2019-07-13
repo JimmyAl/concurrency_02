@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>login</title>
+	<link rel="stylesheet" href="/css/loginStyle.css" type="text/css">
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<!-- jquery -->
+	<!-- <script type="text/javascript" src="@{/js/jequery.min.js}"></script> -->
+	<script type="text/javascript" src="/jquery-validation/lib/jquery-1.11.1.js"></script>
+	<!-- bootstrap -->
+	<!-- <link type="text/css" rel="stylesheet" href="@{/bootstrap/css/bootstrap.min.css}"/> -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous"/>
+	<script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+	<!--jquery-validator  -->
+	<script type="text/javascript" src="/jquery-validation/jquery.validate.min.js"></script>
+	<!-- <script type="text/javascript" src="@{/jquery-validation/jquery.validate. js}"></script> -->
+	<script type="text/javascript" src="/jquery-validation/localization/messages_zh.min.js"></script>
+	<!-- layer -->
+	<script type="text/javascript" src="/layer/layer.js"></script>
+	<!-- md5.js -->
+	<script type="text/javascript" src="/js/md5.min.js"></script>
+</head>
+<body>
+<div id="wrapper" class="login-page">
+	<div id="login_form" class="form">
+		<form class="register-form" name="registerform" id="registerform">
+			<input type="text" name="r_username" placeholder="用户名" id="r_username"/>
+			<input type="password" name="r_password" placeholder="密码" id="r_password" />
+			<input type="text" name="telphone" placeholder="手机号码" id="telphone"/>
+			<div class="row" >
+				<div class="col-md-8" style="padding-right: 0;" >
+					<input type="text" name="r_otpCode" placeholder="请输入验证码" id="r_otpCode"/>
+				</div>
+				<div class="col-md-4" style="padding-left: 0;">
+					<button type="button" class="btn btn-primary" id="s_otpCode" name="s_otpCode">发送验证码</button>
+				</div>
+			</div>
+			<button id="create">创建账户</button>
+			<p class="message">已经有了一个账户? <a href="#">立刻登录</a></p>
+		</form>
+
+		<form class="login-form" name="loginform" id="loginform">
+			<input type="text" name="username" placeholder="用户名" id="username"/>
+			<input type="password" name="password" placeholder="密码" id="password"/>
+			<button id="login">登　录</button>
+			<p class="message">还没有账户? <a href="#">立刻创建</a></p>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+    function check_login()
+    {
+        $("#loginform").validate({
+            submitHandler:function(form){
+                doLogin();
+            }
+        });
+    }
+    
+    function doLogin() {
+        layer.load();
+        setTimeout(function () {
+            layer.closeAll('loading');
+        },2000);
+        var inputPass = $("#password").val();
+        var salt = "1a2b3c4d";
+		var str = "" + salt.charAt(0) + salt.charAt(2) + inputPass + salt.charAt(5) + salt.charAt(4);
+		var password = md5(str);
+		$.ajax({
+			url: "/ms/doLogin",
+			type: "post",
+			data:{
+				username:$("#username").val(),
+				password:password
+			},
+			success:function (data) {
+			    console.log(data);
+                layer.closeAll('loading');
+                if (data.code===0){
+                    setTimeout(function () {
+						window.location.href = "/ms/good_list";
+                    });
+                    layer.msg("登录成功");
+
+                }else {
+                    layer.msg(data.msg);
+                    setTimeout(function () {
+
+					},2000);
+
+                }
+
+            },
+			error:function () {
+
+            }
+
+		})
+    }
+    
+    function doRegister(){
+        layer.load();
+        setTimeout(function () {
+            layer.closeAll('loading');
+        },2000);
+        var inputPass = $("#password").val();
+        var salt = "1a2b3c4d";
+        var str = "" + salt.charAt(0) + salt.charAt(2) + inputPass + salt.charAt(5) + salt.charAt(4);
+        var password = md5(str);
+        $.ajax({
+            url: "/ms/doRegister",
+            type: "post",
+            data:{
+                username:$("#username").val(),
+                password:password,
+                telphone:$("#telphone").val(),
+                otpCode:$("#r_otpCode").val()
+            },
+            success:function (data) {
+                console.log(data);
+                layer.closeAll('loading');
+                if (data.code===0){
+                    setTimeout(function () {
+                        window.location.href = "/ms/good_list";
+                    });
+                    layer.msg("登录成功");
+
+                }else {
+                    layer.msg(data.msg);
+                    setTimeout(function () {
+
+                    },2000);
+
+                }
+
+            },
+            error:function () {
+
+            }
+
+        })
+    }
+
+    function check_register(){
+        if ($("#r_username").val() == ''){
+            layer.msg("用户名不能为空！");
+            return false;
+        }
+        if ($("#r_password").val() == ''){
+            layer.msg("密码不能为空！");
+            return false;
+        }
+        if ($("#telphone").val() == ''){
+            layer.msg("手机号码不能为空！");
+            return false;
+        }
+        if ($("#r_otpCode").val() == ''){
+            layer.msg("验证码不能为空！");
+            return false;
+        }
+
+        doRegister();
+    }
+
+
+
+    $(function(){
+        $("#create").click(function(){
+            check_register();
+        })
+        $("#login").click(function(){
+            check_login();
+        })
+        $("#s_otpCode").click(function(){
+            sendCode("#s_otpCode");
+        })
+        $('.message a').click(function () {
+            $('form').animate({
+                height: 'toggle',
+                opacity: 'toggle'
+            }, 'slow');
+        });
+    })
+
+
+    function sendCode(obj) {
+    }
+</script>
+</body>
+</html>

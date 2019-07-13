@@ -1,0 +1,55 @@
+# mybatis
+mybatis:
+  type-aliases-package: top.jimmyweb.concurrency02.domain
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 100
+    default-statement-timeout: 3000
+  mapper-locations: classpath:top/jimmyweb/concurrency02/dao/*.xml
+  #type-handlers-package: com.example.typehandler
+# druid
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/concurrency_system?useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 100
+      min-idle: 500
+      max-active: 1000
+      max-wait: 60000
+      time-between-eviction-runsMillis: 60000
+      min-evictable-idle-timeMillis: 30000
+      validation-query: select 'x'
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-open-prepared-statements: 20
+      max-pool-prepared-statement-per-connection-size: 20
+      filters: stat
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      use-global-data-source-stat: true
+      ######Druid监控配置######
+
+# redis
+  redis:
+    host: 192.168.10.112
+    port: 6379
+    password:
+    #连接超时时间(毫秒)
+    timeout: 3000ms
+    jedis:
+      pool:
+      #连接池最大连接数
+        max-active: 10
+        #最大空闲连接
+        max-idle: 10
+        #最大阻塞等待时间，负值表示没有限制
+        max-wait: 3000ms
+
+
+
+
