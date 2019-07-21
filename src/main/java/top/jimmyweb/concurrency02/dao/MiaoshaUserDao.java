@@ -25,6 +25,6 @@ public interface MiaoshaUserDao {
      * 保存注册用户
      * @param user
      */
-    public void saveUser(MiaoshaUser user);
+    //public void saveUser(MiaoshaUser user);
 
 }

@@ -62,11 +62,7 @@ public class MiaoshaUserServiceImpl implements MiaoshaUserService {
 
         /*生成Cookic*/
         String tokenId = UUIDUtil.uuid();
-        redisUtil.set(MsUserKey.token+tokenId,user);
-        Cookie ck = new Cookie(COOKIE_NAME,tokenId);
-        ck.setMaxAge(MsUserKey.token.expireSecond());
-        ck.setPath("/");
-        res.addCookie(ck);
+        addCookie(res,user,tokenId);
         return codeMsg.SUCCESS;
     }
 
@@ -86,22 +82,25 @@ public class MiaoshaUserServiceImpl implements MiaoshaUserService {
         if (user != null){
             throw new GlobleException(codeMsg.USER_EXISTS);
         }
-        
 
         return codeMsg.SUCCESS;
-        return null;
     }
 
+    /**
+     * 在redis查询Token
+     * @param res
+     * @param token
+     * @return
+     */
     @Override
     public MiaoshaUser getByToken(HttpServletResponse res,String token) {
         if (StringUtils.isBlank(token)){
             return null;
         }
-
         MiaoshaUser user = (MiaoshaUser) redisUtil.get(MsUserKey.token+token);
-
+        //刷新Token过期时间
         if (user != null){
-            addCookie(res,user);
+            addCookie(res,user,token);
         }
 
         return user;
@@ -113,9 +112,12 @@ public class MiaoshaUserServiceImpl implements MiaoshaUserService {
         return miaoshaUserDao.getById(id);
     }
 
-    private void addCookie(HttpServletResponse res , MiaoshaUser user){
-        /*生成Cookic*/
-        String tokenId = UUIDUtil.uuid();
+    /**
+     * 生成Cookie
+     * @param res
+     * @param user
+     */
+    private void addCookie(HttpServletResponse res , MiaoshaUser user , String tokenId){
         redisUtil.set(MsUserKey.token+tokenId,user);
         Cookie ck = new Cookie(COOKIE_NAME,tokenId);
         ck.setMaxAge(MsUserKey.token.expireSecond());

@@ -39,11 +39,9 @@ public class LoginController {
     public Result<String> doLogin(@Valid LoginVo loginVo, HttpServletResponse res){
             logger.info(loginVo.toString());
             codeMsg codeMsg = miaoshaUserService.login(loginVo,res);
-            if (codeMsg.getCode()==0){
-                return Result.success("登录成功");
-            }else {
-                return Result.error(codeMsg);
-            }
+
+            return Result.success("登录成功");
+
     }
 
 }

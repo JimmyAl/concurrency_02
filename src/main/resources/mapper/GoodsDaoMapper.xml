@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.jimmyweb.concurrency02.dao.GoodsDaoMapper">
+  <resultMap id="BaseResultMap" type="top.jimmyweb.concurrency02.dataobject.Goods">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
+    <result column="goods_title" jdbcType="VARCHAR" property="goodsTitle" />
+    <result column="goods_img" jdbcType="VARCHAR" property="goodsImg" />
+    <result column="goods_price" jdbcType="DECIMAL" property="goodsPrice" />
+    <result column="goods_stock" jdbcType="INTEGER" property="goodsStock" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="top.jimmyweb.concurrency02.dataobject.Goods">
+    <result column="goods_detail" jdbcType="LONGVARCHAR" property="goodsDetail" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithList" type="top.jimmyweb.concurrency02.vo.GoodsVo"/>
+  <sql id="Base_Column_List">
+    id, goods_name, goods_title, goods_img, goods_price, goods_stock
+  </sql>
+  <sql id="Blob_Column_List">
+    goods_detail
+  </sql>
+
+  <select id="getGoodsVoList" resultMap="ResultMapWithList">
+    select
+        g.*,
+        mg.stock_count,
+        mg.start_date,
+        mg.end_date,
+        mg.miaosha_price
+    from miaosha_goods mg
+    left join goods g
+    on mg.goods_id=g.id
+  </select>
+
+  <select id="getGoodsVoByGoodsId" parameterType="java.lang.Long" resultMap="ResultMapWithList">
+    select
+        g.*,
+        mg.stock_count,
+        mg.start_date,
+        mg.end_date,
+        mg.miaosha_price
+    from miaosha_goods mg
+    left join goods g
+    on mg.goods_id=g.id
+    where g.id = #{id}
+  </select>
+
+  <update id="reduceStock" parameterType="java.lang.Long">
+    update
+    miaosha_goods
+    set stock_count=stock_count-1
+    where goods_id=#{goodsId} and stock_count>0
+  </update>
+
+
+</mapper>
